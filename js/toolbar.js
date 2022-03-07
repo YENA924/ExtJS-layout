@@ -122,7 +122,6 @@
                   }
               }],
 
-              // Extra constraint margins within default constrain region of parentNode
               constraintInsets: '0 -' + (Ext.getScrollbarSize().width + 4) + ' 0 0'
           });
           toolbar.show();

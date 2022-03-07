@@ -8,7 +8,7 @@
 
   var scriptEls = document.getElementsByTagName('script'),
       path = scriptEls[scriptEls.length - 1].src,
-      suffix = `-${getQueryParam('theme') || 'neptune'}`
+      suffix = `${getQueryParam('theme') || 'neptune'}`
 
-  document.write('<link rel="stylesheet" type="text/css" href="css/ext-theme' + suffix + '/ext-theme'+ suffix +'-all.css"/>');
+  document.write('<link rel="stylesheet" type="text/css" href="resources/css/ext-all-' + suffix + '.css"/>');
 })();

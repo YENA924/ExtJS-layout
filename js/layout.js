@@ -24,8 +24,7 @@
             maxSize: 200,
             collapsible: true,
             collapsed: true,
-            title: 'Footer',
-            margins: '0 0 0 0'
+            title: 'Footer'
         }, {
             xtype: 'tabpanel',
             region: 'east',
@@ -44,15 +43,14 @@
             width: 225,
             minSize: 175,
             maxSize: 400,
-            margins: '0 5 0 0',
             activeTab: 1,
             tabPosition: 'bottom',
             items: [{
-              html: '<p>A TabPanel component can be a region.</p>',
-              title: 'A Tab',
+              html: '<p>Rigth Menu</p>',
+              title: 'Tab1',
               autoScroll: true
             }, Ext.create('Ext.grid.PropertyGrid', {
-                title: 'Property Grid',
+                title: 'Tab2',
                 closable: true,
                 source: {
                     "(name)": "Properties Grid",
@@ -75,7 +73,6 @@
             maxWidth: 400,
             collapsible: true,
             animCollapse: true,
-            margins: '0 0 0 5',
             layout: 'accordion',
             items: [{
                 contentEl: 'nav--left',
@@ -98,12 +95,12 @@
             bodyPadding: 15,
             items: [{
                 contentEl: 'contents__panel--1',
-                title: 'Close Me',
+                title: 'Panel1',
                 closable: true,
                 autoScroll: true
             }, {
                 contentEl: 'contents__panel--2',
-                title: 'Center Panel',
+                title: 'Panel2 ',
                 autoScroll: true
             }]
         }]
