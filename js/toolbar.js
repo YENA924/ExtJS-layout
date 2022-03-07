@@ -1,148 +1,108 @@
 (function() {
 
+  // url parameter에서 theme 값 가져오기
   function getQueryParam(name, queryString) {
-    var match = RegExp(name + '=([^&]*)').exec(queryString || location.search);
+    const match = RegExp(name + '=([^&]*)').exec(queryString || location.search);
     return match && decodeURIComponent(match[1]);
-    }
+  }
 
-    var scriptTags = document.getElementsByTagName('script'),
-        defaultTheme = 'neptune',
-        defaultRtl = false,
-        i = scriptTags.length,
-        defaultQueryString, src, theme, rtl;
+    const defaultTheme = 'neptune';
+    let theme;
 
-    while (i--) {
-        src = scriptTags[i].src;
-        if (src.indexOf('include-ext.js') !== -1) {
-            defaultQueryString = src.split('?')[1];
-            if (defaultQueryString) {
-                defaultTheme = getQueryParam('theme', defaultQueryString) || defaultTheme;
-                defaultRtl = getQueryParam('rtl', defaultQueryString) || defaultRtl;
-            }
-            break;
-        }
-    }
-
+    // Ext.themeName, theme선언
     Ext.themeName = theme = getQueryParam('theme') || defaultTheme;
-
-    rtl = getQueryParam('rtl') || defaultRtl;
-
-    if (rtl.toString() === 'true') {
-        Ext.define('Ext.GlobalRtlComponent', {
-            override: 'Ext.AbstractComponent',
-            rtl: true
-        });
-    }
 
     Ext.onReady(function() {
       Ext.getBody().addCls(Ext.baseCSSPrefix + 'theme-' + Ext.themeName);
 
+      // url 파라미터 set
       function setParam(param) {
-          var queryString = Ext.Object.toQueryString(
+        const queryString = Ext.Object.toQueryString(
               Ext.apply(Ext.Object.fromQueryString(location.search), param)
-          );
-          location.search = queryString;
+        );
+        location.search = queryString;
       }
 
+      // url 파라미터 remove
       function removeParam(paramName) {
-          var params = Ext.Object.fromQueryString(location.search);
+        const params = Ext.Object.fromQueryString(location.search);
 
-          delete params[paramName];
+        delete params[paramName];
 
-          location.search = Ext.Object.toQueryString(params);
+        location.search = Ext.Object.toQueryString(params);
       }
 
-      var toolbar;
-          
-      setTimeout(function() {
-          toolbar = Ext.widget({
-              xtype: 'toolbar',
-              border: true,
-              rtl: false,
-              id: 'options-toolbar',
-              floating: true,
-              fixed: true,
-              preventFocusOnActivate: true,
-              draggable: {
-                  constrain: true
-              },
-              items: [{
-                  xtype: 'combo',
-                  rtl: false,
-                  width: 170,
-                  labelWidth: 45,
-                  fieldLabel: 'Theme',
-                  displayField: 'name',
-                  valueField: 'value',
-                  labelStyle: 'cursor:move;',
-                  margin: '0 5 0 0',
-                  store: Ext.create('Ext.data.Store', {
-                      fields: ['value', 'name'],
-                      data : [
-                          { value: 'access', name: 'Accessibility' },
-                          { value: 'classic', name: 'Classic' },
-                          { value: 'gray', name: 'Gray' },
-                          { value: 'neptune', name: 'Neptune' }
-                      ]
-                  }),
-                  value: theme,
-                  listeners: {
-                      select: function(combo) {
-                          var theme = combo.getValue();
-                          if (theme !== defaultTheme) {
-                              setParam({ theme: theme });
-                          } else {
-                              removeParam('theme');
-                          }
-                      }
-                  }
-              }, {
-                  xtype: 'button',
-                  rtl: false,
-                  hidden: !(Ext.repoDevMode || location.href.indexOf('qa.sencha.com') !== -1),
-                  enableToggle: true,
-                  pressed: rtl,
-                  text: 'RTL',
-                  margin: '0 5 0 0',
-                  listeners: {
-                      toggle: function(btn, pressed) {
-                          if (pressed) {
-                              setParam({ rtl: true });
-                          } else {
-                              removeParam('rtl');
-                          }
-                      }
-                  }
-              }, {
-                  xtype: 'tool',
-                  type: 'close',
-                  rtl: false,
-                  handler: function() {
-                      toolbar.destroy();
-                  }
-              }],
+      let toolbar;
 
-              constraintInsets: '0 -' + (Ext.getScrollbarSize().width + 4) + ' 0 0'
-          });
-          toolbar.show();
-          toolbar.alignTo(
-              document.body,
-              Ext.optionsToolbarAlign || 'tr-tr',
-              [
-                  (Ext.getScrollbarSize().width + 4) * (Ext.rootHierarchyState.rtl ? 1 : -1),
-                  -(document.body.scrollTop || document.documentElement.scrollTop)
-              ]
-          );
-          
-          var constrainer = function() {
-              toolbar.doConstrain();
-          };
-          
-          Ext.EventManager.onWindowResize(constrainer);
-          toolbar.on('destroy', function() { 
-              Ext.EventManager.removeResizeListener(constrainer);
-          });
+      setTimeout(function() { // 콜백 함수
+        toolbar = Ext.widget({
+            xtype: 'toolbar',
+            border: true,
+            id: 'options-toolbar',
+            floating: true,
+            fixed: true,
+            preventFocusOnActivate: true,
+            draggable: { // 드래그 앤 드롭 기능 추가
+                constrain: true
+            },
+            items: [{ // 콤보박스
+                xtype: 'combo',
+                width: 170,
+                labelWidth: 45,
+                fieldLabel: '테마',
+                displayField: 'name',
+                valueField: 'value',
+                labelStyle: 'cursor:move;',
+                margin: '0 5 0 0',
+                value: theme,
+                // Model 개체 의 클라이언트 측 캐시를 캡슐화 
+                store: Ext.create('Ext.data.Store', { // 목록 구성
+                    fields: ['value', 'name'],
+                    data : [
+                        { value: 'access', name: 'Accessibility' },
+                        { value: 'classic', name: 'Classic' },
+                        { value: 'gray', name: 'Gray' },
+                        { value: 'neptune', name: 'Neptune' }
+                    ]
+                }),
+                listeners: { // 이벤트 리스너
+                    select: function(combo) { // 목록 선택시
+                        var theme = combo.getValue();
+                        if (theme !== defaultTheme) {
+                            setParam({ theme: theme });
+                        } else {
+                            removeParam('theme');
+                        }
+                    }
+                }
+            }, { // close 버튼
+                xtype: 'tool',
+                type: 'close',
+                handler: function() { // 클릭시 toolbar destroy 함수 실행
+                    toolbar.destroy();
+                }
+            }],
+
+            constraintInsets: '0 -' + (Ext.getScrollbarSize().width + 4) + ' 0 0'
+        });
+        toolbar.show();
+        toolbar.alignTo( // 지정된 기준점을 기준으로 요소를 다른 요소와 정렬
+            document.body, // 기준점
+            Ext.optionsToolbarAlign || 'tr-tr', // tr: 오른쪽 상단 모서리
+            [
+                (Ext.getScrollbarSize().width + 4) * -1,
+                -(document.body.scrollTop || document.documentElement.scrollTop)
+            ]
+        );
+        
+        const constrainer = function() { 
+            toolbar.doConstrain(); // 구성 요소를 추가된 컨테이너 또는 렌더링된 요소 내에 있도록 제한
+        };
+        
+        Ext.EventManager.onWindowResize(constrainer); // window 리사이즈 이벤트시
+        toolbar.on('destroy', function() { 
+            Ext.EventManager.removeResizeListener(constrainer);
+        });
       }, 100);
-
   });
 })();
